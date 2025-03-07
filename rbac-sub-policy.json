@@ -1,0 +1,55 @@
+{
+    "mode": "All",
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Resources/subscriptions"
+      },
+      "then": {
+        "effect": "deployIfNotExists",
+        "details": {
+          "type": "Microsoft.Authorization/roleAssignments",
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+          ],
+          "existenceScope": "subscription",
+          "deploymentScope": "subscription",
+          "existenceCondition": {
+            "field": "Microsoft.Authorization/roleAssignments/roleDefinitionId",
+            "equals": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', parameters('roleDefinitionGuid'))]"
+          },
+          "deployment": {
+            "location": "WestUS",
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "resources": [
+                  {
+                    "type": "Microsoft.Authorization/roleAssignments",
+                    "apiVersion": "2022-04-01",
+                    "name": "[guid(subscription().subscriptionId)]",
+                    "properties": {
+                      "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '[Custom-Role-Guid-Here]')]",
+                      "principalId": "[Principal-Guid-Here]"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "roleDefinitionGuid": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Role Definition GUID",
+          "description": "GUID of the role definition now. The policy will match any assignment whose roleDefinitionId ends with this GUID."
+        },
+        "defaultValue": "2d0de426-155f-46ff-9a13-df5aab39ef96"
+      }
+    }
+  }

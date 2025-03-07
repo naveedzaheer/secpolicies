@@ -1,0 +1,104 @@
+{
+    "mode": "Indexed",
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Web/sites"
+          }
+        ]
+      },
+      "then": {
+        "effect": "deployIfNotExists",
+        "details": {
+          "type": "Microsoft.Web/sites/config",
+          "name": "web",
+          "existenceCondition": {
+            "anyOf": [
+              {
+                "field": "Microsoft.Web/sites/config/managedServiceIdentityId",
+                "exists": "true"
+              },
+              {
+                "field": "Microsoft.Web/sites/config/xmanagedServiceIdentityId",
+                "exists": "true"
+              }
+            ]
+          },
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "webAppName": {
+                    "type": "string"
+                  },
+                  "resourceGroupName": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "userAssignedIdentities": {
+                    "type": "string"
+                  }
+                },
+                "resources": [
+                  {
+                    "type": "Microsoft.Resources/deploymentScripts",
+                    "apiVersion": "2020-10-01",
+                    "name": "[concat('policyUpdateSystemManagedIdentityFor-001', parameters('webAppName'))]",
+                    "location": "[parameters('location')]",
+                    "kind": "AzurePowerShell",
+                    "identity": {
+                      "type": "UserAssigned",
+                      "userAssignedIdentities": {
+                        "[parameters('userAssignedIdentities')]": {}
+                      }
+                    },
+                    "properties": {
+                      "azPowerShellVersion": "11.4",
+                      "scriptContent": "param([string] $Name, [string] $ResourceGroupName); Set-AzWebApp -AssignIdentity $true -Name $Name -ResourceGroupName $ResourceGroupName",
+                      "arguments": "[concat('-Name', ' ', parameters('webAppName'), ' ', '-ResourceGroupName', ' ', parameters('resourceGroupName'))]",
+                      "timeout": "PT30M",
+                      "cleanupPreference": "OnSuccess",
+                      "retentionInterval": "P1D"
+                    }
+                  }
+                ]
+              },
+              "parameters": {
+                "webAppName": {
+                  "value": "[field('name')]"
+                },
+                "resourceGroupName": {
+                  "value": "[resourceGroup().name]"
+                },
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "userAssignedIdentities": {
+                  "value": "[parameters('userAssignedIdentities')]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "userAssignedIdentities": {
+        "type": "String",
+        "metadata": {
+          "displayName": "userAssignedIdentities",
+          "description": "user Assigned Identity ID with appropriate permission for running the Azure PowerShell command"
+        }
+      }
+    }
+  }

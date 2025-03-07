@@ -1,0 +1,34 @@
+{
+    "mode": "All",
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Resources/subscriptions/resourceGroups"
+      },
+      "then": {
+        "effect": "auditIfNotExists",
+        "details": {
+          "type": "Microsoft.Authorization/roleAssignments",
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+          ],
+          "existenceScope": "resourceGroup",
+          "deploymentScope": "resourceGroup",
+          "existenceCondition": {
+            "field": "Microsoft.Authorization/roleAssignments/roleDefinitionId",
+            "equals": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', parameters('roleDefinitionGuid'))]"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "roleDefinitionGuid": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Role Definition GUID",
+          "description": "GUID of the role definition now. The policy will match any assignment whose roleDefinitionId ends with this GUID."
+        },
+        "defaultValue": "bf100572-8c4d-48b4-aeec-ce8a98055ee7"
+      }
+    }
+  }
