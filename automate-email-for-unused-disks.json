@@ -1,0 +1,459 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "triggers": {
+            "When_a_HTTP_request_is_received": {
+                "type": "Request",
+                "kind": "Http",
+                "inputs": {
+                    "method": "POST",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "actions": {
+            "HTTP": {
+                "type": "Http",
+                "inputs": {
+                    "uri": "https://management.azure.com/providers/Microsoft.ResourceGraph/resources",
+                    "method": "POST",
+                    "headers": {
+                        "content-type": "application/json"
+                    },
+                    "queries": {
+                        "api-version": "2024-04-01"
+                    },
+                    "body": {
+                        "query": "resources | where type =~ 'microsoft.compute/disks' and properties.diskState =~ 'Unattached'"
+                    },
+                    "authentication": {
+                        "type": "ManagedServiceIdentity"
+                    }
+                },
+                "runAfter": {},
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                }
+            },
+            "Response": {
+                "type": "Response",
+                "kind": "Http",
+                "inputs": {
+                    "statusCode": 200,
+                    "body": "@body('HTTP')"
+                },
+                "runAfter": {
+                    "For_each": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Parse_JSON": {
+                "type": "ParseJson",
+                "inputs": {
+                    "content": "@body('HTTP')",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "totalRecords": {
+                                "type": "integer"
+                            },
+                            "count": {
+                                "type": "integer"
+                            },
+                            "data": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "tenantId": {
+                                            "type": "string"
+                                        },
+                                        "kind": {
+                                            "type": "string"
+                                        },
+                                        "location": {
+                                            "type": "string"
+                                        },
+                                        "resourceGroup": {
+                                            "type": "string"
+                                        },
+                                        "subscriptionId": {
+                                            "type": "string"
+                                        },
+                                        "managedBy": {
+                                            "type": "string"
+                                        },
+                                        "sku": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "tier": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "plan": {},
+                                        "properties": {
+                                            "type": "object",
+                                            "properties": {
+                                                "provisioningState": {
+                                                    "type": "string"
+                                                },
+                                                "publicNetworkAccess": {
+                                                    "type": "string"
+                                                },
+                                                "networkAccessPolicy": {
+                                                    "type": "string"
+                                                },
+                                                "timeCreated": {
+                                                    "type": "string"
+                                                },
+                                                "diskSizeGB": {
+                                                    "type": "integer"
+                                                },
+                                                "diskSizeBytes": {
+                                                    "type": "integer"
+                                                },
+                                                "encryption": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "creationData": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "createOption": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "LastOwnershipUpdateTime": {
+                                                    "type": "string"
+                                                },
+                                                "diskState": {
+                                                    "type": "string"
+                                                },
+                                                "uniqueId": {
+                                                    "type": "string"
+                                                },
+                                                "diskIOPSReadWrite": {
+                                                    "type": "integer"
+                                                },
+                                                "diskMBpsReadWrite": {
+                                                    "type": "integer"
+                                                },
+                                                "tier": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "tags": {},
+                                        "identity": {},
+                                        "zones": {},
+                                        "extendedLocation": {}
+                                    },
+                                    "required": [
+                                        "id",
+                                        "name",
+                                        "type",
+                                        "tenantId",
+                                        "kind",
+                                        "location",
+                                        "resourceGroup",
+                                        "subscriptionId",
+                                        "managedBy",
+                                        "sku",
+                                        "plan",
+                                        "properties",
+                                        "tags",
+                                        "identity",
+                                        "zones",
+                                        "extendedLocation"
+                                    ]
+                                }
+                            },
+                            "facets": {
+                                "type": "array"
+                            },
+                            "resultTruncated": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "HTTP": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "For_each": {
+                "type": "Foreach",
+                "foreach": "@body('Parse_JSON')?['data']",
+                "actions": {
+                    "Parse_JSON_Item": {
+                        "type": "ParseJson",
+                        "inputs": {
+                            "content": "@items('For_each')",
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "tenantId": {
+                                        "type": "string"
+                                    },
+                                    "kind": {
+                                        "type": "string"
+                                    },
+                                    "location": {
+                                        "type": "string"
+                                    },
+                                    "resourceGroup": {
+                                        "type": "string"
+                                    },
+                                    "subscriptionId": {
+                                        "type": "string"
+                                    },
+                                    "managedBy": {
+                                        "type": "string"
+                                    },
+                                    "sku": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "tier": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "plan": {},
+                                    "properties": {
+                                        "type": "object",
+                                        "properties": {
+                                            "provisioningState": {
+                                                "type": "string"
+                                            },
+                                            "publicNetworkAccess": {
+                                                "type": "string"
+                                            },
+                                            "networkAccessPolicy": {
+                                                "type": "string"
+                                            },
+                                            "timeCreated": {
+                                                "type": "string"
+                                            },
+                                            "diskSizeGB": {
+                                                "type": "integer"
+                                            },
+                                            "encryption": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "diskSizeBytes": {
+                                                "type": "integer"
+                                            },
+                                            "creationData": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "createOption": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "LastOwnershipUpdateTime": {
+                                                "type": "string"
+                                            },
+                                            "diskState": {
+                                                "type": "string"
+                                            },
+                                            "uniqueId": {
+                                                "type": "string"
+                                            },
+                                            "diskIOPSReadWrite": {
+                                                "type": "integer"
+                                            },
+                                            "diskMBpsReadWrite": {
+                                                "type": "integer"
+                                            },
+                                            "tier": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "tags": {},
+                                    "identity": {},
+                                    "zones": {},
+                                    "extendedLocation": {}
+                                }
+                            }
+                        }
+                    },
+                    "nzaplpolicyfuncps-GetOwnersEmail": {
+                        "type": "Function",
+                        "inputs": {
+                            "body": "@outputs('Compose')",
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json"
+                            },
+                            "function": {
+                                "id": "/subscriptions/[your-azure-subscription-id]/resourceGroups/nzaplpolicydemo-rg/providers/Microsoft.Web/sites/nzaplpolicyfuncps/functions/GetOwnersEmail"
+                            }
+                        },
+                        "runAfter": {
+                            "Compose": [
+                                "Succeeded"
+                            ]
+                        }
+                    },
+                    "Compose": {
+                        "type": "Compose",
+                        "inputs": "@variables('DiskId')",
+                        "runAfter": {
+                            "Set_variable": [
+                                "Succeeded"
+                            ]
+                        }
+                    },
+                    "Parse_JSON_EmailAddresses": {
+                        "type": "ParseJson",
+                        "inputs": {
+                            "content": "@body('nzaplpolicyfuncps-GetOwnersEmail')",
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "runAfter": {
+                            "nzaplpolicyfuncps-GetOwnersEmail": [
+                                "Succeeded"
+                            ]
+                        }
+                    },
+                    "For_each_Email": {
+                        "type": "Foreach",
+                        "foreach": "@outputs('Parse_JSON_EmailAddresses')['body']",
+                        "actions": {
+                            "Send_an_email_(V2)": {
+                                "type": "ApiConnection",
+                                "inputs": {
+                                    "host": {
+                                        "connection": {
+                                            "name": "@parameters('$connections')['office365']['connectionId']"
+                                        }
+                                    },
+                                    "method": "post",
+                                    "body": {
+                                        "To": "@item()",
+                                        "Subject": "Please check your unattached disk",
+                                        "Body": "<p class=\"editor-paragraph\">@{items('For_each')}</p>",
+                                        "Importance": "Normal"
+                                    },
+                                    "path": "/v2/Mail"
+                                }
+                            }
+                        },
+                        "runAfter": {
+                            "Parse_JSON_EmailAddresses": [
+                                "Succeeded"
+                            ]
+                        }
+                    },
+                    "Set_variable": {
+                        "type": "SetVariable",
+                        "inputs": {
+                            "name": "DiskId",
+                            "value": "{\"Name\": \"@{body('Parse_JSON_Item')?['id']}\"}"
+                        },
+                        "runAfter": {
+                            "Parse_JSON_Item": [
+                                "Succeeded"
+                            ]
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Initialize_variable_1": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Initialize_variable_1": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "DiskId",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Parse_JSON": [
+                        "Succeeded"
+                    ]
+                }
+            }
+        },
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "type": "Object",
+                "defaultValue": {}
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "type": "Object",
+            "value": {
+                "office365": {
+                    "id": "/subscriptions/[your-azure-subscription-id]/providers/Microsoft.Web/locations/northcentralus/managedApis/office365",
+                    "connectionId": "/subscriptions/[your-azure-subscription-id]/resourceGroups/nzaplpolicydemo-rg/providers/Microsoft.Web/connections/office365",
+                    "connectionName": "office365"
+                }
+            }
+        }
+    }
+}
