@@ -1,0 +1,10 @@
+resourcecontainers
+| where type =~ 'microsoft.resources/subscriptions'
+| project subscriptionId, subscriptionName = name
+| join kind=leftouter (    authorizationresources    
+| where type =~ 'microsoft.authorization/roleAssignments'    
+| where properties.roleDefinitionId has '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'    
+| extend principalId = tostring(properties.principalId)    
+| project subscriptionId, principalId    
+| summarize ownerCount = count() by subscriptionId) on $left.subscriptionId == $right.subscriptionId
+| project subscriptionName, ownerCount
