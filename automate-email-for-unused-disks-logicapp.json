@@ -336,7 +336,7 @@
                                 "Content-Type": "application/json"
                             },
                             "function": {
-                                "id": "/subscriptions/[your-azure-subscription-id]/resourceGroups/nzaplpolicydemo-rg/providers/Microsoft.Web/sites/nzaplpolicyfuncps/functions/GetOwnersEmail"
+                                "id": "/subscriptions/[your-azure-subscription-id]/resourceGroups/[your-resource-group-id]/providers/Microsoft.Web/sites/[your-function-app-name]/functions/[your-function-name]"
                             }
                         },
                         "runAfter": {
@@ -450,7 +450,7 @@
             "value": {
                 "office365": {
                     "id": "/subscriptions/[your-azure-subscription-id]/providers/Microsoft.Web/locations/northcentralus/managedApis/office365",
-                    "connectionId": "/subscriptions/[your-azure-subscription-id]/resourceGroups/nzaplpolicydemo-rg/providers/Microsoft.Web/connections/office365",
+                    "connectionId": "/subscriptions/[your-azure-subscription-id]/resourceGroups/[your-resource-group-id]/providers/Microsoft.Web/connections/office365",
                     "connectionName": "office365"
                 }
             }
