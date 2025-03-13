@@ -24,4 +24,5 @@
      - Parse JSON and Compose activities to extract the disk's resource id
      - Call Function activity to call the function to get owner's email
      - Send Email actity to send email to the Owner about unattached disk
+     - Here is the workflow diagram for reference 
      - ![Here is the workflow diagram for reference](https://github.com/naveedzaheer/secpolicies/blob/main/Workflow.png)
