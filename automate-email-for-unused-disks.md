@@ -1,4 +1,4 @@
-# Leverage Azure Logic Apps, Functions and PowerShell to automaticlayy generate email to owners of unused disks
+# Leverage Azure Logic Apps, Functions and PowerShell to automatically generate email to owners of unused disks
 
 ## Here are the steps to enable this demo scenario
 1. Create an Azure Function using PowerShell to get the owner of disk using the managed disk's resource id as the input parameter
