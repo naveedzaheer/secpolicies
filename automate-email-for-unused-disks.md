@@ -5,7 +5,7 @@
    - Make sure to assign it a Managed Idenity (System or User)
    - Make sure to give that Managed Idenity Reader access to all the subscriptions. If theer are too many subscriptions then give it Reader access to the Management Group [See this resource](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/how-to-assign-access-azure-resource?pivots=identity-mi-access-portal) 
    - Please give the managed identity access to **Directory.Read.All** to AD Graph using [this script](https://github.com/naveedzaheer/secpolicies/blob/main/MSIGraphPermit.psd1)
-   - Make sure to use this [requirements.psd1](https://github.com/naveedzaheer/secpolicies/blob/main/GetOwnerEmailFunction/requirements.ps1) file  to minimize load time as it only lists the required PowerShell Modules
+   - Make sure to use this [requirements.ps1](https://github.com/naveedzaheer/secpolicies/blob/main/GetOwnerEmailFunction/requirements.ps1) file  to minimize load time as it only lists the required PowerShell Modules
    - Make sure to use this [host.json](https://github.com/naveedzaheer/secpolicies/blob/main/GetOwnerEmailFunction/host.json) as it has the flag to enable managed dependencies
    - Code for the Function is available in [run.ps1](https://github.com/naveedzaheer/secpolicies/blob/main/GetOwnerEmailFunction/run.ps1)
 2. Create a Logic App which uses Resource Graph query to get the data about unattached managed disks 
