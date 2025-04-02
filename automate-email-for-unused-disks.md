@@ -10,7 +10,7 @@
    - Code for the Function is available in [run.ps1](https://github.com/naveedzaheer/secpolicies/blob/main/GetOwnerEmailFunction/run.ps1)
 2. Create a Logic App which uses Resource Graph query to get the data about unattached managed disks 
    - Make sure to assign it a Managed Idenity (System or User)
-   - Make sure to give that Managed Idenity Reader access to all the subscriptions. If theer are too many subscriptions then give it Reader access to the Management Group [See this resource](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/how-to-assign-access-azure-resource?pivots=identity-mi-access-portal) 
+   - Make sure to give that Managed Idenity Reader access to all the subscriptions. If there are too many subscriptions then give it Reader access to the Management Group [See this resource](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/how-to-assign-access-azure-resource?pivots=identity-mi-access-portal) 
    - Please use the [logic app code here](https://github.com/naveedzaheer/secpolicies/blob/main/automate-email-for-unused-disks-logicapp.json) to create your logic app
    - Please make sure to update the 
      - [your-azure-subscription-id] with your subscrition id. 
