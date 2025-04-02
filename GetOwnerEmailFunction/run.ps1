@@ -15,7 +15,7 @@ if (-not $name) {
 $emailList = [System.Collections.Generic.List[string]]::new()
 
 if ($name) {
-    $items = Get-AzRoleAssignment -Scope $name | Where-Object {$_.RoleDefinitionName -eq "Owner" -and $_.SignInName -ne $null -and $_.SignInName.Contains("#") -ne "True"} | Select -ExpandProperty "SignInName"
+    $items = Get-AzRoleAssignment | Where-Object {$_.RoleDefinitionName -eq "Owner" -and $_.SignInName -ne $null -and $_.SignInName.Contains("#") -ne "True"} | Select -ExpandProperty "SignInName"
     foreach ($item in $items) {
         Write-Host $item
         $emailList.Add($item)
